@@ -18,10 +18,9 @@ type Props = {
   onContinue: () => void;
 };
 
-function deltaToVerdict(deltaPct: number): 'good' | 'warn' | 'bad' {
-  const abs = Math.abs(deltaPct);
-  if (abs <= 10) return 'good';
-  if (abs <= 25) return 'warn';
+function accuracyToVerdict(acc: number): 'good' | 'warn' | 'bad' {
+  if (acc >= 90) return 'good';
+  if (acc >= 75) return 'warn';
   return 'bad';
 }
 
@@ -69,8 +68,8 @@ export function ResultScreen({
             const meta = macroMeta[m];
             const row = outcome.perMacro[m];
             if (!row) return null;
-            const verdict = deltaToVerdict(row.deltaPct);
-            const sign = row.deltaPct >= 0 ? '+' : '';
+            const accuracy = Math.max(0, 100 - Math.abs(row.deltaPct));
+            const verdict = accuracyToVerdict(accuracy);
             return (
               <View key={m} style={styles.row}>
                 <View style={styles.left}>
@@ -84,8 +83,7 @@ export function ResultScreen({
                     Actual {Math.round(row.actual)} {meta.unit}
                   </Text>
                   <Text style={[styles.delta, deltaStyle[verdict]]}>
-                    {sign}
-                    {row.deltaPct.toFixed(1)}%
+                    {accuracy.toFixed(1)}%
                   </Text>
                 </View>
               </View>
@@ -119,26 +117,25 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
-// Pick a short coaching line based on which macro drifted most.
+// Pick a short coaching line based on which macro was the weakest read.
 function findHeadlineNote(outcome: RoundOutcome, activeMacros: Macro[]): string {
   const entries = activeMacros
     .map((m) => {
       const cell = outcome.perMacro[m];
       if (!cell) return null;
-      return {
-        m,
-        abs: Math.abs(cell.deltaPct),
-        sign: cell.deltaPct >= 0 ? 'over' : 'under',
-      };
+      const acc = Math.max(0, 100 - Math.abs(cell.deltaPct));
+      return { m, acc };
     })
-    .filter((x): x is { m: Macro; abs: number; sign: string } => x !== null);
-  entries.sort((a, b) => b.abs - a.abs);
+    .filter((x): x is { m: Macro; acc: number } => x !== null);
+  if (entries.length === 0) return '';
+  entries.sort((a, b) => a.acc - b.acc); // weakest first
   const worst = entries[0];
-  if (!worst || worst.abs < 6) {
-    return 'Tightly clustered — every macro within 6%.';
+  // if even the worst macro is high, celebrate
+  if (worst.acc >= 94) {
+    return 'Tightly clustered — every macro hit 94%+.';
   }
   const macroLabel = macroMeta[worst.m].label.toLowerCase();
-  return `Your ${macroLabel} read drifted ${worst.sign} by ${worst.abs.toFixed(0)}%.`;
+  return `Your ${macroLabel} read was your weakest at ${worst.acc.toFixed(0)}%.`;
 }
 
 const deltaStyle = StyleSheet.create({

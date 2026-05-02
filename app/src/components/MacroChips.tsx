@@ -13,29 +13,38 @@ export function MacroChips({ active, onChange }: Props) {
 
   function toggle(m: Macro) {
     if (active.includes(m)) {
-      const next = active.filter((x) => x !== m);
-      // never allow zero — default back to calories so scoring stays meaningful
-      onChange(next.length === 0 ? ['calories'] : next);
+      onChange(active.filter((x) => x !== m));
     } else {
       onChange([...active, m]);
     }
   }
 
+  // "All" is a real toggle: deselects everything when all are on,
+  // selects everything when not all are on.
+  function toggleAll() {
+    onChange(allOn ? [] : [...ALL_MACROS]);
+  }
+
   return (
     <View style={styles.row}>
       <Pressable
-        onPress={() => onChange(allOn ? ['calories', 'protein'] : [...ALL_MACROS])}
+        onPress={toggleAll}
         style={({ pressed }) => [
           styles.chip,
           allOn && styles.chipOn,
           pressed && styles.pressed,
         ]}
       >
-        <Text style={[styles.chipLabel, allOn && styles.chipLabelOn]}>All</Text>
+        <Text style={[styles.chipLabel, allOn && styles.chipLabelOn]}>
+          All
+        </Text>
       </Pressable>
 
       {ALL_MACROS.map((m) => {
-        const on = active.includes(m);
+        // when "All" is on, individual pills read as unselected so the
+        // selected state is mutually exclusive between "All" and the
+        // four individuals.
+        const on = !allOn && active.includes(m);
         const meta = macroMeta[m];
         return (
           <Pressable
@@ -67,17 +76,16 @@ export function MacroChips({ active, onChange }: Props) {
 const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 6,
+    gap: 4,
     paddingHorizontal: spacing.xl,
     paddingBottom: spacing.md,
   },
   chip: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    paddingVertical: 7,
-    paddingHorizontal: 12,
+    gap: 4,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
     borderRadius: radii.pill,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.line,
@@ -89,15 +97,15 @@ const styles = StyleSheet.create({
   },
   pressed: { opacity: 0.7 },
   chipLabel: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '500',
     color: colors.ink,
   },
   chipLabelOn: { color: '#fff' },
   dot: {
-    width: 7,
-    height: 7,
-    borderRadius: 4,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
     backgroundColor: colors.muted,
   },
   dotOn: {

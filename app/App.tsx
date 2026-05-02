@@ -2,6 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
 import { SafeAreaView, StyleSheet, View } from 'react-native';
 import { meals } from './src/data/meals';
+import { useStoredState } from './src/hooks/useStoredState';
 import { GuessScreen } from './src/screens/GuessScreen';
 import { ResultScreen } from './src/screens/ResultScreen';
 import { SessionScreen } from './src/screens/SessionScreen';
@@ -21,17 +22,31 @@ type Phase =
   | { kind: 'guess' }
   | { kind: 'result'; guess: Guess; outcome: RoundOutcome };
 
-export default function App() {
-  // ---- session state ----
-  const [sessions, setSessions] = useState<SessionRecord[]>([]);
-  const [currentRounds, setCurrentRounds] = useState<RoundRecord[]>([]);
-  const [activeMacros, setActiveMacros] = useState<Macro[]>([
-    'calories',
-    'protein',
-  ]);
-  const [sessionLength, setSessionLength] = useState<SessionLength>(5);
+const STORAGE_KEYS = {
+  sessions: 'cl:sessions',
+  activeMacros: 'cl:activeMacros',
+  sessionLength: 'cl:sessionLength',
+} as const;
 
-  // ---- round state ----
+const DEFAULT_MACROS: Macro[] = ['calories', 'protein', 'carbs', 'fat'];
+
+export default function App() {
+  // ---- persisted state ----
+  const [sessions, setSessions, sHydrated] = useStoredState<SessionRecord[]>(
+    STORAGE_KEYS.sessions,
+    [],
+  );
+  const [activeMacros, setActiveMacros, mHydrated] = useStoredState<Macro[]>(
+    STORAGE_KEYS.activeMacros,
+    DEFAULT_MACROS,
+  );
+  const [sessionLength, setSessionLength, lHydrated] =
+    useStoredState<SessionLength>(STORAGE_KEYS.sessionLength, 5);
+
+  const ready = sHydrated && mHydrated && lHydrated;
+
+  // ---- in-memory only (per-launch) ----
+  const [currentRounds, setCurrentRounds] = useState<RoundRecord[]>([]);
   const [phase, setPhase] = useState<Phase>({ kind: 'session' });
   const roundIndex = currentRounds.length;
   const meal = meals[(sessions.length + roundIndex) % meals.length];
@@ -92,6 +107,16 @@ export default function App() {
       setCurrentRounds(nextRounds);
       setPhase({ kind: 'guess' });
     }
+  }
+
+  // hold the screen blank until storage hydrates so the user never sees
+  // a brief flash of "no sessions yet" before their data arrives.
+  if (!ready) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <StatusBar style="dark" />
+      </SafeAreaView>
+    );
   }
 
   return (

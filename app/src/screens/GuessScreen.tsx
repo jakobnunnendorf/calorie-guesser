@@ -17,11 +17,13 @@ type Props = {
   onSubmit: (guess: Guess) => void;
 };
 
+// Sliders start at 0 so each guess is a deliberate act, not a nudge
+// away from a midpoint suggestion that biases the answer.
 const SEED: Record<Macro, number> = {
-  calories: 450,
-  protein: 22,
-  carbs: 50,
-  fat: 18,
+  calories: 0,
+  protein: 0,
+  carbs: 0,
+  fat: 0,
 };
 
 // Photo grows to fill whatever vertical space the active-macro count
