@@ -1,18 +1,22 @@
-# CaloLingo · MVP (Expo + React Native)
+# CaloLingo
 
-Implementation of **Direction 2** (iOS-style minimal) from the mock-ups
-in `../mockups/`. The MVP covers the core loop:
+Practice estimating macros from meal photos. The app shows you a plate
+and asks you to guess its calories, protein, carbs, fat — then scores
+how close you were so your intuition sharpens over time.
 
-1. See a meal photo
-2. Slide to estimate calories + protein
-3. Submit
-4. Read your accuracy ring + per-macro breakdown
-5. Tap **Next meal** and repeat
+## Repo layout
 
-No accounts, no backend — everything is local state. The five seeded
-meals live in `src/data/meals.ts`.
+```
+CaloLingo/
+├── app/        — Expo + React Native app (the actual MVP)
+├── mockups/    — static HTML mockups exploring four design directions
+└── README.md   — you are here
+```
 
-## Run it
+The mockups are not in this repo — they live alongside `app/` in the
+working tree but aren't tracked by git.
+
+## Run the app
 
 ```bash
 cd app
@@ -20,47 +24,17 @@ npm install
 npx expo start
 ```
 
-Then press **i** for the iOS simulator, **a** for an Android emulator,
-or scan the QR code with Expo Go on your phone. **w** runs it in the
-browser, which is the fastest way to iterate.
+`w` for browser, `i` for iOS simulator, `a` for Android. See `app/README.md`
+for the full setup notes.
 
-If `npx expo start` complains about version drift, run
-`npx expo install --fix` to align native packages with the installed
-SDK — Expo manages the exact versions of `react-native-svg` and
-`@react-native-community/slider` per SDK release.
+## Status
 
-## Project layout
-
-```
-app/
-├── App.tsx                       round/view state machine
-├── index.ts                      Expo entry
-├── package.json / app.json
-├── src/
-│   ├── theme.ts                  color + spacing tokens, macro meta
-│   ├── scoring.ts                composite + per-macro accuracy
-│   ├── types.ts
-│   ├── data/meals.ts             seeded meals
-│   ├── components/
-│   │   ├── AccuracyRing.tsx      SVG ring (react-native-svg)
-│   │   ├── MacroSlider.tsx       label + slider + tabular value
-│   │   ├── MealPhoto.tsx
-│   │   ├── PrimaryButton.tsx
-│   │   ├── Eyebrow.tsx           eyebrow + big SF-Pro headline
-│   │   └── StatusNav.tsx
-│   └── screens/
-│       ├── GuessScreen.tsx
-│       └── ResultScreen.tsx
-```
-
-## Where to take it next
-
-- Macro selector: let users turn carbs / fat on or off (the project
-  spec calls for this — currently hard-wired to calories + protein).
-- Persist `history` to `AsyncStorage` so 7-day-avg / best-streak
-  survive app restarts.
-- Real meal content: swap `src/data/meals.ts` for a small Supabase
-  table or a local JSON pack.
-- Better feedback: animate the ring in, gently haptic on submit.
-- Replace placeholder photos with licensed imagery before any kind of
-  production use — Unsplash is fine for prototypes only.
+- [x] Core guess → result loop with sliders + accuracy ring
+- [x] Session-summary screen (per-round breakdown, 14-session chart, lifetime tiles)
+- [x] First-run empty state with skeletons
+- [x] Macro-agnostic scoring (calories, protein, carbs, fat)
+- [x] Configurable session length (5 / 10 / 15)
+- [x] First production iOS build via EAS
+- [ ] AsyncStorage persistence
+- [ ] App Store Connect entry + TestFlight submission
+- [ ] Real meal content + photo licensing
