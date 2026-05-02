@@ -1,0 +1,33 @@
+{
+  "expo": {
+    "name": "CaloLingo",
+    "slug": "calolingo",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.calolingo.app",
+      "buildNumber": "1",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "com.calolingo.app",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "73197a42-6d59-4d68-a634-0f0dafee8395"
+      }
+    },
+    "owner": "jakobnunnendorf"
+  }
+}

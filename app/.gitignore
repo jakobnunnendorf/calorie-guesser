@@ -1,0 +1,18 @@
+node_modules/
+.expo/
+dist/
+
+# Apple App Store Connect API keys — never commit
+*.p8
+AuthKey_*
+credentials.json
+npm-debug.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+web-build/
+.DS_Store
+*.log
