@@ -14,7 +14,6 @@ import { MacroChips } from '../components/MacroChips';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { StatusNav } from '../components/StatusNav';
 import type { Meal } from '../data/meals';
-import { meals as MEALS } from '../data/meals';
 import { macroAccuracyAcross, sessionAvg } from '../scoring';
 import { colors, macroMeta, radii, spacing } from '../theme';
 import type { Macro } from '../theme';
@@ -22,6 +21,7 @@ import type { SessionLength, SessionRecord } from '../types';
 
 type Props = {
   sessions: SessionRecord[];
+  meals: Meal[];
   activeMacros: Macro[];
   onActiveMacrosChange: (m: Macro[]) => void;
   sessionLength: SessionLength;
@@ -31,6 +31,7 @@ type Props = {
 
 export function SessionScreen({
   sessions,
+  meals,
   activeMacros,
   onActiveMacrosChange,
   sessionLength,
@@ -160,6 +161,7 @@ export function SessionScreen({
               key={i}
               index={i}
               record={r}
+              meals={meals}
               activeMacros={lastSessionMacros}
             />
           ))}
@@ -264,14 +266,16 @@ function HeroRing({ value }: { value: number | null }) {
 function RoundRow({
   index,
   record,
+  meals,
   activeMacros,
 }: {
   index: number;
   record: { mealId: string; outcome: any } | null;
+  meals: Meal[];
   activeMacros: Macro[];
 }) {
   const isEmpty = !record;
-  const meal = record ? MEALS.find((m) => m.id === record.mealId) : null;
+  const meal = record ? meals.find((m) => m.id === record.mealId) : null;
   const composite = record?.outcome?.composite ?? null;
 
   const accStyle =

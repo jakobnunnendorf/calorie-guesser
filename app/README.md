@@ -53,6 +53,36 @@ app/
 │       └── ResultScreen.tsx
 ```
 
+## Loading meals from a Google Sheet
+
+The app pulls its meal pool from a public Google Sheet
+(`MEALS_SHEET_ID` in `src/config.ts`) so meals can be added or edited
+without rebuilding. The current sheet uses these German column headers:
+
+| Bild-URL | Lebensmittel | Kalorien (kcal) | Eiweiß (g) | Kohlenhydrate (g) | Fett (g) |
+|---|---|---|---|---|---|
+| https://… | Apfel | 52 | 0.3 | 14 | 0.2 |
+
+Column order is flexible; lookup is by header name. Rows with an empty
+photo or caption are dropped silently. The `id` field is derived from a
+slug of the caption (so `Ei (gekocht)` → `ei-gekocht`).
+
+### Photos
+
+The `Bild-URL` column accepts either:
+- a full `https://…` URL (current state — Wikipedia thumbnails)
+- a Google Drive file ID — wrapped in `https://lh3.googleusercontent.com/d/<id>`
+
+To switch to Drive-hosted photos later: upload images to a Drive folder
+shared as **Anyone with the link can view**, copy each file ID
+(`drive.google.com/file/d/<THIS_PART>/view`) into the `Bild-URL` column.
+No code change required.
+
+### Caching
+
+The app fetches the sheet on launch, caches the result for 24 h via
+`AsyncStorage`, and falls back to bundled meals on network errors.
+
 ## Where to take it next
 
 - Macro selector: let users turn carbs / fat on or off (the project

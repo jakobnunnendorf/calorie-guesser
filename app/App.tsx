@@ -1,7 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
 import { SafeAreaView, StyleSheet, View } from 'react-native';
-import { meals } from './src/data/meals';
+import { useMeals } from './src/hooks/useMeals';
 import { useStoredState } from './src/hooks/useStoredState';
 import { GuessScreen } from './src/screens/GuessScreen';
 import { ResultScreen } from './src/screens/ResultScreen';
@@ -44,6 +44,9 @@ export default function App() {
     useStoredState<SessionLength>(STORAGE_KEYS.sessionLength, 5);
 
   const ready = sHydrated && mHydrated && lHydrated;
+
+  // ---- meal pool (Sheet-backed if configured, bundled fallback) ----
+  const { meals } = useMeals();
 
   // ---- in-memory only (per-launch) ----
   const [currentRounds, setCurrentRounds] = useState<RoundRecord[]>([]);
@@ -126,6 +129,7 @@ export default function App() {
         {phase.kind === 'session' && (
           <SessionScreen
             sessions={sessions}
+            meals={meals}
             activeMacros={activeMacros}
             onActiveMacrosChange={setActiveMacros}
             sessionLength={sessionLength}
